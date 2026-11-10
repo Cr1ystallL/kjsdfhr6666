@@ -37,7 +37,7 @@ server {
 
     # API Бэкенда
     location /api/ {
-        proxy_pass http://127.0.0.1:4000/api/;
+        proxy_pass http://127.0.0.1:4100/api/;
         proxy_http_version 1.1;
         proxy_set_header Upgrade $http_upgrade;
         proxy_set_header Connection 'upgrade';

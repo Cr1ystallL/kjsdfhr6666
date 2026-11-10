@@ -13,7 +13,7 @@ import {
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4100;
 const DEPLOY_SECRET = process.env.DEPLOY_SECRET || 'macvcoin_secret_deploy_token_123';
 
 app.use(cors({ origin: '*' }));
