@@ -1,6 +1,8 @@
 import { UserProfile, UpgradeItem, TaskItem, StreakBonusInfo, UserUpgrades } from './types';
 
-const API_BASE = '/api';
+const API_BASE = typeof window !== 'undefined' && window.location.pathname.includes('/coin')
+  ? '/coin-api'
+  : '/api';
 
 export async function syncUser(telegramId: number, username = '', firstName = '', referrerId: number | null = null): Promise<{ user: UserProfile; offlineEarned: number }> {
   try {

@@ -11,20 +11,7 @@ import os
 import sys
 import logging
 import asyncio
-
-# Безопасная загрузка .env без падения при отсутствии библиотеки
-try:
-    from dotenv import load_dotenv
-    load_dotenv()
-except ImportError:
-    env_file = os.path.join(os.path.dirname(__file__), '.env')
-    if os.path.exists(env_file):
-        with open(env_file, 'r', encoding='utf-8') as f:
-            for line in f:
-                line = line.strip()
-                if line and not line.startswith('#') and '=' in line:
-                    k, v = line.split('=', 1)
-                    os.environ.setdefault(k.strip(), v.strip())
+from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart
 from aiogram.types import (
     InlineKeyboardMarkup,
@@ -34,19 +21,33 @@ from aiogram.types import (
 )
 import aiohttp
 
-load_dotenv()
+# Безопасная загрузка .env без падения при отсутствии библиотеки
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    pass
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "9099205497:AAF1kDahwPcl40wbBSPOw1W91cfet4226EI")
-WEBAPP_URL = os.getenv("WEBAPP_URL", "https://macvbet.nl/coin")
-BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:4000")
+env_file = os.path.join(os.path.dirname(__file__), '.env')
+if os.path.exists(env_file):
+    try:
+        with open(env_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    k, v = line.split('=', 1)
+                    os.environ.setdefault(k.strip(), v.strip())
+    except Exception:
+        pass
+
+BOT_TOKEN = (os.getenv("BOT_TOKEN") or "").strip() or "9099205497:AAF1kDahwPcl40wbBSPOw1W91cfet4226EI"
+WEBAPP_URL = (os.getenv("WEBAPP_URL") or "").strip() or "https://macvbet.nl/coin"
+BACKEND_URL = (os.getenv("BACKEND_URL") or "").strip() or "http://localhost:4000"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
 
-if not BOT_TOKEN:
-    logger.warning("⚠️ BOT_TOKEN не задан! Создайте файл .env на основе .env.example")
-
-bot = Bot(token=BOT_TOKEN) if BOT_TOKEN else None
+bot = Bot(token=BOT_TOKEN)
 dp = Dispatcher()
 
 
