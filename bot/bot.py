@@ -2,7 +2,9 @@
 """
 MacvCoin ($MACV) Telegram Bot
 Официальный бот для запуска Telegram Mini App кликера MacvCoin.
-Поддерживает реферальную систему, WebApp-кнопки и информацию о проекте.
+Обрабатывает команду /start с приветствием и только двумя инлайн-кнопками:
+1. Кнопка запуска Mini App
+2. Кнопка информации о проекте и токене $MACV
 """
 
 import os
@@ -10,7 +12,7 @@ import logging
 import asyncio
 from dotenv import load_dotenv
 from aiogram import Bot, Dispatcher, types, F
-from aiogram.filters import CommandStart, Command
+from aiogram.filters import CommandStart
 from aiogram.types import (
     InlineKeyboardMarkup,
     InlineKeyboardButton,
@@ -21,11 +23,9 @@ import aiohttp
 
 load_dotenv()
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "")
-WEBAPP_URL = os.getenv("WEBAPP_URL", "https://macvcoin.app")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "9099205497:AAF1kDahwPcl40wbBSPOw1W91cfet4226EI")
+WEBAPP_URL = os.getenv("WEBAPP_URL", "https://macvbet.nl/coin")
 BACKEND_URL = os.getenv("BACKEND_URL", "http://localhost:4000")
-CHANNEL_URL = os.getenv("CHANNEL_URL", "https://t.me/macvcoin_channel")
-CHAT_URL = os.getenv("CHAT_URL", "https://t.me/macvcoin_chat")
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
 logger = logging.getLogger(__name__)
@@ -54,38 +54,40 @@ async def register_referral_on_backend(telegram_id: int, referrer_id: int, usern
         logger.warning(f"Не удалось отправить реферала на бэкенд: {e}")
 
 
-def get_main_keyboard(user_id: int) -> InlineKeyboardMarkup:
-    """Главная клавиатура бота с WebApp кнопкой"""
+def get_main_inline_keyboard(user_id: int) -> InlineKeyboardMarkup:
+    """Только две инлайн-кнопки: Mini App и Информация"""
     webapp_url = f"{WEBAPP_URL}?userId={user_id}"
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="🎮 Играть в 1 клик",
+                    text="🎮 Открыть Mini App",
                     web_app=WebAppInfo(url=webapp_url)
                 )
             ],
             [
                 InlineKeyboardButton(
-                    text="📢 Наш Канал",
-                    url=CHANNEL_URL
-                ),
-                InlineKeyboardButton(
-                    text="💬 Комьюнити",
-                    url=CHAT_URL
-                )
-            ],
-            [
-                InlineKeyboardButton(
-                    text="👥 Пригласить друзей",
-                    callback_data="share_ref"
-                ),
-                InlineKeyboardButton(
-                    text="ℹ️ О токене $MACV",
+                    text="ℹ️ Информация о $MACV",
                     callback_data="about_token"
                 )
             ]
         ]
+    )
+
+
+def get_welcome_text(first_name: str) -> str:
+    return (
+        f"👋 Привет, {first_name}!\n\n"
+        f"Добро пожаловать в **MacvCoin ($MACV)** — тапалку нового поколения с реальным пассивным доходом!\n\n"
+        f"⚡ **Твои возможности:**\n"
+        f"• Тапай монету и накапливай баланс $MACV\n"
+        f"• Прокачивай пассивный доход в час (карточки и ноды)\n"
+        f"• Выполняй ежедневные задания и забирай стрики наград\n"
+        f"• Приглашай друзей и получай 10% от их дохода\n\n"
+        f"🚀 **Переход в CryptoCoin:**\n"
+        f"Через месяц проект выходит на DEX/CEX и трансформируется в криптовалюту. "
+        f"Размер Airdrop напрямую зависит от вашего дохода в час!\n\n"
+        f"Нажимай кнопку ниже, чтобы начать майнинг прямо сейчас 👇"
     )
 
 
@@ -108,71 +110,62 @@ async def handle_start(message: types.Message):
         except ValueError:
             pass
 
-    welcome_text = (
-        f"👋 Привет, {user.first_name or 'Игрок'}!\n\n"
-        f"Добро пожаловать в **MacvCoin ($MACV)** — экосистему кликера нового поколения с реальным пассивным доходом!\n\n"
-        f"⚡ **Что тебя ждет:**\n"
-        f"• Тапай монету и накапливай баланс $MACV\n"
-        f"• Прокачивай пассивный доход в час (карточки и ноды)\n"
-        f"• Выполняй ежедневные задания и забирай стрики наград\n"
-        f"• Приглашай друзей и получай 10% от их дохода\n\n"
-        f"🚀 **Будущее $MACV:**\n"
-        f"Через месяц проект выходит на DEX/CEX и трансформируется в полноценный CryptoCoin. "
-        f"Размер аирдропа напрямую зависит от вашего дохода в час и активности!\n\n"
-        f"Нажимай кнопку ниже, чтобы запустить игру прямо сейчас 👇"
-    )
+    welcome_text = get_welcome_text(user.first_name or "Игрок")
 
     await message.answer(
         text=welcome_text,
-        reply_markup=get_main_keyboard(user.id),
+        reply_markup=get_main_inline_keyboard(user.id),
         parse_mode="Markdown"
     )
 
 
-@dp.callback_query(F.data == "share_ref")
-async def handle_share_ref(callback: types.CallbackQuery):
+@dp.callback_query(F.data == "about_token")
+async def handle_about_token(callback: types.CallbackQuery):
     user_id = callback.from_user.id
-    bot_info = await bot.get_me()
-    ref_link = f"https://t.me/{bot_info.username}?start=ref_{user_id}"
+    webapp_url = f"{WEBAPP_URL}?userId={user_id}"
 
-    share_text = (
-        f"👥 **Твоя реферальная ссылка:**\n"
-        f"`{ref_link}`\n\n"
-        f"🎁 **Награды за приглашения:**\n"
-        f"• +5,000 $MACV тебе и твоему другу сразу при входе\n"
-        f"• +25,000 $MACV если у друга Telegram Premium\n"
-        f"• 10% от каждого натапанного им баланса пожизненно!\n\n"
-        f"Отправь эту ссылку друзьям или поделись в своих соцсетях!"
+    token_text = (
+        f"💎 **О проекте MacvCoin ($MACV):**\n\n"
+        f"MacvCoin — это utility-токен будущей децентрализованной крипто-экосистемы.\n\n"
+        f"📅 **Дорожная карта:**\n"
+        f"1️⃣ **Этап 1 (Текущий)**: Запуск тапалки, расширение комьюнити, прокачка карточек.\n"
+        f"2️⃣ **Этап 2**: Внедрение Web3-кошельков TON, стейкинг пулы, PvP-турниры.\n"
+        f"3️⃣ **Этап 3 (Через 1 месяц)**: TGE (Token Generation Event), снапшот активности и Airdrop!\n"
+        f"4️⃣ **Этап 4**: Листинг токена на биржах (DEX/CEX), запуск крипто-платежей.\n\n"
+        f"💡 Чем выше твой **доход в час** и уровень карточек, тем больше реальных монет ты получишь на аирдропе!"
     )
 
-    share_keyboard = InlineKeyboardMarkup(
+    kb = InlineKeyboardMarkup(
         inline_keyboard=[
             [
                 InlineKeyboardButton(
-                    text="📲 Поделиться в Telegram",
-                    url=f"https://t.me/share/url?url={ref_link}&text=Забирай%205000%20MacvCoin%20на%20старт!%20Скоро%20листинг%20крипты!"
+                    text="🎮 Начать майнинг в Mini App",
+                    web_app=WebAppInfo(url=webapp_url)
+                )
+            ],
+            [
+                InlineKeyboardButton(
+                    text="◀️ Назад к приветствию",
+                    callback_data="back_to_start"
                 )
             ]
         ]
     )
 
-    await callback.message.answer(share_text, reply_markup=share_keyboard, parse_mode="Markdown")
+    await callback.message.edit_text(token_text, reply_markup=kb, parse_mode="Markdown")
     await callback.answer()
 
 
-@dp.callback_query(F.data == "about_token")
-async def handle_about_token(callback: types.CallbackQuery):
-    token_text = (
-        f"💎 **О токене MacvCoin ($MACV):**\n\n"
-        f"MacvCoin — это utility-токен будущей децентрализованной экосистемы.\n\n"
-        f"📅 **Дорожная карта:**\n"
-        f"1️⃣ **Этап 1 (Текущий)**: Запуск тапалки, расширение комьюнити, сбор активности майнеров.\n"
-        f"2️⃣ **Этап 2**: Внедрение Web3-кошельков TON, стейкинг пулы, PvP-турниры.\n"
-        f"3️⃣ **Этап 3 (Через 1 месяц)**: TGE (Token Generation Event), снапшот активности и Airdrop!\n"
-        f"4️⃣ **Этап 4**: Листинг токена на биржах (DEX/CEX), интеграция крипто-платежей.\n\n"
-        f"💡 Чем выше твой **доход в час** и уровень карточек, тем больше реальных монет ты получишь на аирдропе!"
+@dp.callback_query(F.data == "back_to_start")
+async def handle_back_to_start(callback: types.CallbackQuery):
+    user = callback.from_user
+    welcome_text = get_welcome_text(user.first_name or "Игрок")
+
+    await callback.message.edit_text(
+        text=welcome_text,
+        reply_markup=get_main_inline_keyboard(user.id),
+        parse_mode="Markdown"
     )
-    await callback.message.answer(token_text, parse_mode="Markdown")
     await callback.answer()
 
 
@@ -194,7 +187,7 @@ async def main():
         logger.error("❌ BOT_TOKEN не указан. Запустите бота после заполнения .env файла.")
         return
 
-    logger.info("🚀 MacvCoin Bot запускается...")
+    logger.info("🚀 MacvCoin Bot запускается с токеном...")
     await set_menu_button()
     await dp.start_polling(bot)
 

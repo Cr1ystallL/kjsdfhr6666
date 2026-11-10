@@ -24,7 +24,7 @@ export const GameProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [floatingPoints, setFloatingPoints] = useState<Array<{ id: number; x: number; y: number; amount: number }>>([]);
 
   const pendingTapsRef = useRef<number>(0);
-  const syncTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const syncTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Тактильная виброотдача через Telegram Mini App SDK
   const triggerHaptic = useCallback((type: 'light' | 'medium' | 'heavy' | 'success' | 'error' = 'medium') => {
