@@ -1,0 +1,16 @@
+{
+  "name": "macvcoin-ecosystem",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MacvCoin ($MACV) Telegram Mini App & Bot Ecosystem",
+  "scripts": {
+    "dev:server": "cd server && npm run dev",
+    "dev:webapp": "cd webapp && npm run dev",
+    "build:server": "cd server && npm run build",
+    "build:webapp": "cd webapp && npm run build",
+    "build": "npm run build:server && npm run build:webapp",
+    "start": "pm2 start ecosystem.config.js",
+    "stop": "pm2 stop ecosystem.config.js",
+    "restart": "pm2 restart ecosystem.config.js"
+  }
+}
