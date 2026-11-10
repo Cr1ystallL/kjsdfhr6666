@@ -10,6 +10,7 @@ module.exports = {
       name: 'macvcoin-server',
       cwd: path.resolve(__dirname, 'server'),
       script: 'dist/index.js',
+      exec_mode: 'fork',
       instances: 1,
       autorestart: true,
       watch: false,

@@ -202,8 +202,13 @@ async def main():
         return
 
     logger.info("🚀 MacvCoin Bot запускается с токеном...")
+    try:
+        await bot.delete_webhook(drop_pending_updates=True)
+    except Exception as e:
+        logger.warning(f"delete_webhook error: {e}")
+
     await set_menu_button()
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
 
 
 if __name__ == "__main__":
