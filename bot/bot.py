@@ -42,7 +42,7 @@ if os.path.exists(env_file):
         pass
 
 BOT_TOKEN = (os.getenv("BOT_TOKEN") or "").strip()
-WEBAPP_URL = (os.getenv("WEBAPP_URL") or "").strip() or "https://macvbet.nl/coin"
+WEBAPP_URL = (os.getenv("WEBAPP_URL") or "").strip().rstrip("/")
 BACKEND_URL = (os.getenv("BACKEND_URL") or "").strip() or "http://127.0.0.1:4100"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -50,6 +50,10 @@ logger = logging.getLogger(__name__)
 
 if not BOT_TOKEN or ":" not in BOT_TOKEN:
     logger.error("❌ BOT_TOKEN не задан или некорректен в bot/.env — бот не может запуститься.")
+    sys.exit(1)
+
+if not WEBAPP_URL.startswith("https://"):
+    logger.error("❌ WEBAPP_URL в bot/.env должен быть https-адресом сайта MacvCoin. Запустите: bash setup-domain.sh")
     sys.exit(1)
 
 bot = Bot(token=BOT_TOKEN)

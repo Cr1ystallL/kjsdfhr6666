@@ -21,40 +21,11 @@ fi
 # 3. Установка PM2 глобально
 sudo npm install -g pm2
 
-# 4. Настройка Nginx конфигурации
-echo "🌐 Настройка Nginx для Telegram Mini App MacvCoin..."
-sudo tee /etc/nginx/sites-available/macvcoin > /dev/null << 'EOF'
-server {
-    listen 80;
-    server_name _;
-
-    # Фронтенд Mini App (статические файлы Vite dist)
-    location / {
-        root /var/www/macvcoin/webapp/dist;
-        index index.html;
-        try_files $uri $uri/ /index.html;
-    }
-
-    # API Бэкенда
-    location /api/ {
-        proxy_pass http://127.0.0.1:4100/api/;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade $http_upgrade;
-        proxy_set_header Connection 'upgrade';
-        proxy_set_header Host $host;
-        proxy_cache_bypass $http_upgrade;
-        proxy_set_header X-Real-IP $remote_addr;
-        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-    }
-}
-EOF
-
-sudo ln -sf /etc/nginx/sites-available/macvcoin /etc/nginx/sites-enabled/
-sudo rm -f /etc/nginx/sites-enabled/default 2>/dev/null || true
-sudo nginx -t && sudo systemctl reload nginx
+# 4. Nginx + HTTPS настраиваются отдельным скриптом (свой server-блок, чужие сайты не трогаются)
+echo "🌐 Для настройки сайта MacvCoin запустите: bash setup-domain.sh [ваш-домен]"
 
 # 5. Настройка автозапуска PM2 при перезагрузке сервера
 pm2 startup systemd -u $USER --hp $HOME || true
 
 echo "✅ [MacvCoin Setup] Сервер полностью подготовлен!"
-echo "Теперь вы можете склонировать репозиторий, запустить './deploy.sh' и 'pm2 start auto-sync.sh --name macvcoin-sync'"
+echo "Дальше: заполните bot/.env, затем 'bash deploy.sh', 'bash setup-domain.sh' и 'pm2 start auto-sync.sh --name macvcoin-sync'"

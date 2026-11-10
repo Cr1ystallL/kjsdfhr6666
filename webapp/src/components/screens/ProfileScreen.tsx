@@ -33,7 +33,7 @@ export const ProfileScreen: React.FC = () => {
 
   if (!user) return null;
 
-  const botUsername = 'macvcoin_bot';
+  const botUsername = 'MacvCoin_bot';
   const refLink = `https://t.me/${botUsername}?start=ref_${user.telegramId}`;
 
   const handleCopyLink = () => {
