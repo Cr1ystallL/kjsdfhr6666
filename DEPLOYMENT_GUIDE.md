@@ -34,7 +34,7 @@
 ```bash
 cd D:\Codes\4\112\nehuy\MacvCoin
 git init
-git remote add origin https://github.com/Cr1ystallL222/jsfhhhhhhfw232223.git
+git remote add origin https://github.com/Cr1ystallL/kjsdfhr6666.git
 git branch -M main
 git add .
 git commit -m "feat: initial commit MacvCoin ecosystem"
@@ -43,7 +43,7 @@ git push -u origin main
 
 Друг клонирует репозиторий себе на компьютер:
 ```bash
-git clone https://github.com/Cr1ystallL222/jsfhhhhhhfw232223.git
+git clone https://github.com/Cr1ystallL/kjsdfhr6666.git
 ```
 
 ---
@@ -61,7 +61,7 @@ ssh root@IP_ВАШЕГО_СЕРВЕРА
 ```bash
 mkdir -p /var/www
 cd /var/www
-git clone https://github.com/Cr1ystallL222/jsfhhhhhhfw232223.git macvcoin
+git clone https://github.com/Cr1ystallL/kjsdfhr6666.git macvcoin
 cd /var/www/macvcoin
 ```
 
