@@ -9,8 +9,9 @@ echo "🚀 [MacvCoin Deploy] Начало обновления проекта...
 # 1. Переход в директорию проекта
 cd "$(dirname "$0")"
 
-# 2. Получение свежего кода из Git
+# 2. Получение свежего кода из Git (с безопасным сбросом локальных lock-файлов)
 echo "📥 [1/5] Стягивание свежих коммитов из Git..."
+git checkout -f main 2>/dev/null || git checkout -f
 git pull origin main || git pull
 
 # 3. Обновление и сборка бэкенда
@@ -27,10 +28,16 @@ npm install --production=false
 npm run build
 cd ..
 
-# 5. Обновление зависимостей Python-бота
+# 5. Обновление зависимостей Python-бота через venv
 echo "🤖 [4/5] Проверка зависимостей бота..."
-if [ -f "bot/requirements.txt" ]; then
-  pip3 install -r bot/requirements.txt --break-system-packages 2>/dev/null || pip3 install -r bot/requirements.txt || true
+if [ ! -d "venv" ]; then
+  python3 -m venv venv 2>/dev/null || true
+fi
+
+if [ -f "venv/bin/pip" ]; then
+  venv/bin/pip install -r bot/requirements.txt --quiet || true
+else
+  pip3 install -r bot/requirements.txt --break-system-packages --quiet 2>/dev/null || pip3 install -r bot/requirements.txt || true
 fi
 
 # 6. Перезапуск процессов в PM2

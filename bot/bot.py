@@ -8,10 +8,23 @@ MacvCoin ($MACV) Telegram Bot
 """
 
 import os
+import sys
 import logging
 import asyncio
-from dotenv import load_dotenv
-from aiogram import Bot, Dispatcher, types, F
+
+# Безопасная загрузка .env без падения при отсутствии библиотеки
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    env_file = os.path.join(os.path.dirname(__file__), '.env')
+    if os.path.exists(env_file):
+        with open(env_file, 'r', encoding='utf-8') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#') and '=' in line:
+                    k, v = line.split('=', 1)
+                    os.environ.setdefault(k.strip(), v.strip())
 from aiogram.filters import CommandStart
 from aiogram.types import (
     InlineKeyboardMarkup,
