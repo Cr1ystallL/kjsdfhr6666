@@ -14,6 +14,9 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
+      max_restarts: 30,
+      restart_delay: 3000,
+      min_uptime: '10s',
       max_memory_restart: '500M',
       env: {
         NODE_ENV: 'production',
@@ -28,10 +31,15 @@ module.exports = {
       instances: 1,
       autorestart: true,
       watch: false,
+      max_restarts: 30,
+      restart_delay: 3000,
+      min_uptime: '10s',
       max_memory_restart: '300M',
       env: {
         PYTHONIOENCODING: 'utf-8',
-        PYTHONUTF8: '1'
+        PYTHONUTF8: '1',
+        LANG: 'C.UTF-8',
+        LC_ALL: 'C.UTF-8'
       }
     }
   ]
