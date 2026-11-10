@@ -14,10 +14,10 @@ const MainContent: React.FC = () => {
   const { activeTab } = useGame();
 
   return (
-    <div className="min-h-screen bg-[#0B0E14] text-zinc-100 flex flex-col justify-between">
-      <div>
+    <div className="min-h-screen bg-[#050507] text-zinc-100 flex flex-col justify-between selection:bg-amber-500/20">
+      <div className="flex-1 flex flex-col">
         <Header />
-        <main className="w-full">
+        <main className="flex-1 w-full">
           {activeTab === 'tap' && <TapScreen />}
           {activeTab === 'upgrades' && <UpgradesScreen />}
           {activeTab === 'tasks' && <TasksScreen />}

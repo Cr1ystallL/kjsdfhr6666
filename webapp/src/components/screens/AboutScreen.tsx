@@ -1,175 +1,177 @@
 import React from 'react';
-import { 
-  HelpCircle, 
-  Sparkles, 
-  Calendar, 
-  PieChart, 
-  TrendingUp 
+import {
+  BookOpen,
+  Calendar,
+  PieChart,
+  TrendingUp
 } from 'lucide-react';
+import { BrandMark } from '../BrandMark';
 
 export const AboutScreen: React.FC = () => {
   const roadmapSteps = [
     {
-      phase: 'ФАЗА 1',
-      title: 'Майнинг и Рост Сообщества',
+      phase: 'ЭТАП 1',
+      title: 'Запуск добычи и формирование сообщества',
       status: 'active',
-      date: 'Ноябрь 2026 (Текущий этап)',
+      date: 'ТЕКУЩИЙ ЭТАП',
       items: [
-        'Запуск Telegram Mini App тапалки MacvCoin',
-        'Внедрение механики прокачки и пассивного дохода',
-        'Реферальная программа и система ежедневных наград',
-        'Набор первых 100 000 активных пользователей'
-      ]
+        'Запуск приложения добычи монет MacvCoin в Telegram',
+        'Система улучшения оборудования и пассивного дохода в час',
+        'Партнерская сеть с отчислением 10% и ежедневные награды',
+        'Набор первых 100 000 активных участников сети',
+      ],
     },
     {
-      phase: 'ФАЗА 2',
-      title: 'Web3 Инфраструктура и TON',
+      phase: 'ЭТАП 2',
+      title: 'Подключение инфраструктуры сети TON',
       status: 'upcoming',
-      date: 'Декабрь 2026',
+      date: 'СЛЕДУЮЩИЙ ЭТАП',
       items: [
-        'Интеграция Web3-кошельков TON Connect',
-        'Стейкинг пулы с повышенным множителем',
-        'PvP-турниры майнеров и лидерборд',
-        'Аудит смарт-контракта будущего токена $MACV'
-      ]
+        'Верификация привязанных кошельков TON',
+        'Запуск хранилищ резерва с повышенным множителем добычи',
+        'Соревнования лиг и таблица лидеров проекта',
+        'Независимый аудит смарт-контракта токена $MACV',
+      ],
     },
     {
-      phase: 'ФАЗА 3',
-      title: 'TGE и Масштабный Airdrop',
+      phase: 'ЭТАП 3',
+      title: 'Выпуск токена и распределение монет',
       status: 'upcoming',
-      date: 'Январь 2027 (Через 1 месяц)',
+      date: 'ЧЕРЕЗ 1 МЕСЯЦ',
       items: [
-        'Финальный снапшот балансов игроков',
-        'Конвертация накоплений $MACV в полноценный CryptoCoin',
-        'Раздача токенов на привязанные TON кошельки',
-        'Листинг токена на DEX (STON.fi, DeDust) и CEX'
-      ]
+        'Финальная фиксация балансов и мощности добычи игроков',
+        'Выпуск крипто-токена $MACV в блокчейне TON',
+        'Прямая отправка монет на привязанные кошельки игроков',
+        'Открытие торгов на биржах STON.fi, DeDust и централизованных площадках',
+      ],
     },
     {
-      phase: 'ФАЗА 4',
-      title: 'CryptoCoin Экосистема',
+      phase: 'ЭТАП 4',
+      title: 'Развитие экосистемы $MACV',
       status: 'upcoming',
       date: '2027',
       items: [
-        'Запуск децентрализованных утилит токена',
-        'Листинг на Tier-1 биржах',
-        'Интеграция платежного шлюза для партнерских сервисов',
-        'Запуск DAO голосования сообщества'
-      ]
-    }
+        'Внедрение токена $MACV в партнерские игровые проекты',
+        'Обратный выкуп и сжигание части комиссии сети',
+        'Голосование держателей токена за развитие платформы',
+      ],
+    },
+  ];
+
+  const allocations = [
+    { label: 'Сообщество и раздача игрокам', share: '50%' },
+    { label: 'Резерв ликвидности для бирж', share: '20%' },
+    { label: 'Развитие серверной инфраструктуры', share: '15%' },
+    { label: 'Привлечение новых участников и награды', share: '15%' },
   ];
 
   return (
-    <div className="px-4 py-3 max-w-lg mx-auto pb-safe">
-      <div className="mb-3">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <HelpCircle className="w-5 h-5 text-amber-500" />
-          <span>О Токене MacvCoin ($MACV)</span>
+    <div className="px-4 py-3 max-w-lg mx-auto pb-safe space-y-4">
+      <div>
+        <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+          ДОКУМЕНТАЦИЯ ПРОЕКТА
+        </div>
+        <h2 className="font-heading text-lg font-extrabold text-white flex items-center gap-2 mt-0.5">
+          <BookOpen className="w-5 h-5 text-amber-400" />
+          <span>О Монете MacvCoin ($MACV)</span>
         </h2>
-        <p className="text-xs text-zinc-400">
-          Стратегия развития, переход в CryptoCoin и правила распределения будущего аирдропа
+        <p className="text-xs text-zinc-400 mt-0.5">
+          Экономика токена, этапы выхода на биржу и правила начисления монет участникам
         </p>
       </div>
 
-      {/* Информационный манифест */}
-      <div className="border border-white/10 rounded-xl bg-[#10141D] p-4 mb-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-amber-400 uppercase tracking-wider mb-2">
-          <Sparkles className="w-4 h-4" />
-          <span>Концепция Проекта</span>
-        </div>
-        <p className="text-xs text-zinc-300 leading-relaxed mb-3">
-          <strong className="text-white">MacvCoin</strong> создан как игровая фаза для честного распределения токенов среди реального активного сообщества. 
-          Через месяц проект проходит процедуру <strong className="text-amber-400">TGE (Token Generation Event)</strong> и выходит на децентрализованные биржи блокчейна TON в виде полноценного ликвидного <strong className="text-white">CryptoCoin ($MACV)</strong>.
-        </p>
-        <div className="p-3 bg-[#0B0E14] border border-white/5 rounded-lg text-xs">
-          <div className="font-bold text-white mb-1 flex items-center gap-1.5">
-            <TrendingUp className="w-4 h-4 text-emerald-400" />
-            <span>Главный критерий аирдропа:</span>
+      {/* Панель 1: Манифест и критерий распределения (единая плоская поверхность) */}
+      <div className="bg-[#0b0c10] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06] overflow-hidden">
+        <div className="p-4 flex items-start gap-3">
+          <BrandMark variant="gradient" size={38} className="mt-0.5" />
+          <div className="min-w-0">
+            <div className="text-xs font-extrabold uppercase tracking-wider text-amber-400">
+              КОНЦЕПЦИЯ MACVCOIN
+            </div>
+            <p className="text-xs text-zinc-300 leading-relaxed mt-1">
+              <strong className="text-white">MacvCoin ($MACV)</strong> — это этап честного первичного распределения будущего биржевого токена среди активных участников. Через месяц проект выпускает токен в блокчейне TON и открывает свободную торговлю на биржах.
+            </p>
           </div>
-          <div className="text-zinc-400 leading-normal">
-            Объем ваших токенов на раздаче будет определяться прежде всего вашим <strong className="text-emerald-400">«Доходом в час»</strong> и уровнем прокачки карточек, а не просто кликами!
+        </div>
+
+        <div className="p-4 flex items-start gap-3">
+          <TrendingUp className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+          <div>
+            <div className="text-xs font-extrabold uppercase tracking-wider text-white">
+              ГЛАВНЫЙ КРИТЕРИЙ ПОЛУЧЕНИЯ МОНЕТ
+            </div>
+            <p className="text-xs text-zinc-400 leading-relaxed mt-1">
+              Итоговое количество крипто-токенов $MACV при распределении рассчитывается прежде всего из вашего показателя <strong className="text-emerald-400">«Доход в час»</strong>, уровня оборудования и активности в лиге.
+            </p>
           </div>
         </div>
       </div>
 
-      {/* Токеномика проекта */}
-      <div className="border border-white/10 rounded-xl bg-[#10141D] p-4 mb-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider mb-3 pb-2 border-b border-white/5">
+      {/* Панель 2: Распределение эмиссии (единая плоская поверхность) */}
+      <div className="bg-[#0b0c10] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06] overflow-hidden">
+        <div className="px-4 py-3 flex items-center gap-2">
           <PieChart className="w-4 h-4 text-amber-400" />
-          <span>Токеномика MacvCoin ($MACV)</span>
+          <span className="text-xs font-extrabold uppercase tracking-wider text-white">
+            Распределение Выпуска $MACV
+          </span>
         </div>
 
-        <div className="space-y-2.5">
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-amber-400"></span>
-              <span className="text-zinc-300">Сообщество и Airdrop игрокам</span>
+        <div className="divide-y divide-white/[0.06]">
+          {allocations.map((item) => (
+            <div
+              key={item.label}
+              className="px-4 py-3 flex items-center justify-between text-xs"
+            >
+              <span className="text-zinc-300 font-medium">{item.label}</span>
+              <span className="font-mono font-extrabold text-amber-400 tabular-nums">
+                {item.share}
+              </span>
             </div>
-            <span className="font-mono font-bold text-white tabular-nums">50%</span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-              <span className="text-zinc-300">Пул ликвидности для бирж (DEX)</span>
-            </div>
-            <span className="font-mono font-bold text-white tabular-nums">20%</span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
-              <span className="text-zinc-300">Развитие экосистемы и серверов</span>
-            </div>
-            <span className="font-mono font-bold text-white tabular-nums">15%</span>
-          </div>
-
-          <div className="flex items-center justify-between text-xs">
-            <div className="flex items-center gap-2">
-              <span className="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
-              <span className="text-zinc-300">Маркетинг и партнерские квесты</span>
-            </div>
-            <span className="font-mono font-bold text-white tabular-nums">15%</span>
-          </div>
+          ))}
         </div>
       </div>
 
-      {/* Дорожная карта */}
-      <div className="border border-white/10 rounded-xl bg-[#10141D] p-4">
-        <div className="flex items-center gap-2 text-xs font-bold text-white uppercase tracking-wider mb-3 pb-2 border-b border-white/5">
+      {/* Панель 3: План развития (единая плоская поверхность) */}
+      <div className="bg-[#0b0c10] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06] overflow-hidden">
+        <div className="px-4 py-3 flex items-center gap-2">
           <Calendar className="w-4 h-4 text-amber-400" />
-          <span>Дорожная Карта (Roadmap)</span>
+          <span className="text-xs font-extrabold uppercase tracking-wider text-white">
+            План Развития Проекта
+          </span>
         </div>
 
-        <div className="space-y-4">
+        <div className="divide-y divide-white/[0.06]">
           {roadmapSteps.map((step) => {
             const isActive = step.status === 'active';
 
             return (
-              <div key={step.phase} className="relative pl-4 border-l-2 border-white/10">
-                <div className={`absolute -left-[5px] top-0 w-2 h-2 rounded-full ${
-                  isActive ? 'bg-amber-400 ring-4 ring-amber-500/20' : 'bg-zinc-600'
-                }`} />
-
+              <div key={step.phase} className="p-4">
                 <div className="flex items-center justify-between mb-1">
-                  <span className={`text-[10px] font-mono font-bold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                    isActive ? 'bg-amber-500/20 text-amber-400 border border-amber-500/30' : 'bg-white/5 text-zinc-400'
-                  }`}>
-                    {step.phase}
+                  <span
+                    className={`text-[10px] font-mono font-extrabold uppercase tracking-wider ${
+                      isActive ? 'text-amber-400' : 'text-zinc-400'
+                    }`}
+                  >
+                    {step.phase} {isActive ? '• АКТИВЕН' : ''}
                   </span>
-                  <span className="text-[10px] text-zinc-400 font-mono">
+                  <span className="text-[10px] font-mono text-zinc-400 tabular-nums">
                     {step.date}
                   </span>
                 </div>
 
-                <div className="text-sm font-bold text-white mb-1.5">
+                <div className="text-sm font-bold text-white mb-2">
                   {step.title}
                 </div>
 
                 <ul className="space-y-1">
                   {step.items.map((item, idx) => (
-                    <li key={idx} className="text-xs text-zinc-400 flex items-start gap-1.5">
-                      <span className="text-amber-500 text-[10px] mt-0.5">•</span>
+                    <li
+                      key={idx}
+                      className="text-xs text-zinc-400 flex items-start gap-2"
+                    >
+                      <span className="text-amber-400 font-mono text-xs leading-none mt-0.5">
+                        —
+                      </span>
                       <span>{item}</span>
                     </li>
                   ))}

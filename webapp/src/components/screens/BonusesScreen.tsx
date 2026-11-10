@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { StreakBonusInfo } from '../../types';
 import { fetchStreakInfo, claimStreak, claimBox } from '../../api';
-import { Gift, Sparkles, Check, Clock, Box } from 'lucide-react';
+import { Gift, Check, Clock, Box } from 'lucide-react';
 
 export const BonusesScreen: React.FC = () => {
   const { user, triggerHaptic, updateUserDirectly } = useGame();
@@ -11,6 +11,8 @@ export const BonusesScreen: React.FC = () => {
   const [claimingStreak, setClaimingStreak] = useState<boolean>(false);
   const [claimingBox, setClaimingBox] = useState<boolean>(false);
   const [boxTimeLeft, setBoxTimeLeft] = useState<number>(0);
+  const [lastBoxReward, setLastBoxReward] = useState<number | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const loadData = async () => {
     if (!user) return;
@@ -29,7 +31,6 @@ export const BonusesScreen: React.FC = () => {
     loadData();
   }, [user?.telegramId]);
 
-  // Таймер обратного отсчета для сундука
   useEffect(() => {
     if (boxTimeLeft <= 0) return;
     const interval = setInterval(() => {
@@ -43,12 +44,15 @@ export const BonusesScreen: React.FC = () => {
     const hours = Math.floor(totalSeconds / 3600);
     const minutes = Math.floor((totalSeconds % 3600) / 60);
     const seconds = totalSeconds % 60;
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+    return `${hours.toString().padStart(2, '0')}:${minutes
+      .toString()
+      .padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
   };
 
   const handleClaimStreak = async () => {
     if (!user || !streakInfo || streakInfo.isClaimedToday || claimingStreak) return;
     setClaimingStreak(true);
+    setErrorMessage(null);
     try {
       const res = await claimStreak(user.telegramId);
       triggerHaptic('success');
@@ -56,7 +60,7 @@ export const BonusesScreen: React.FC = () => {
       await loadData();
     } catch (err: any) {
       triggerHaptic('error');
-      alert(err.message || 'Ошибка получения бонуса');
+      setErrorMessage(err?.message || 'Ошибка получения ежедневной награды');
     } finally {
       setClaimingStreak(false);
     }
@@ -65,46 +69,56 @@ export const BonusesScreen: React.FC = () => {
   const handleClaimBox = async () => {
     if (!user || boxTimeLeft > 0 || claimingBox) return;
     setClaimingBox(true);
+    setErrorMessage(null);
+    setLastBoxReward(null);
     try {
       const res = await claimBox(user.telegramId);
       triggerHaptic('success');
-      alert(`🎁 Вы открыли сундук и получили +${res.reward.toLocaleString('ru-RU')} $MAG!`);
+      setLastBoxReward(res.reward);
       updateUserDirectly(res.user);
       await loadData();
     } catch (err: any) {
       triggerHaptic('error');
-      alert(err.message || 'Сундук еще перезаряжается');
+      setErrorMessage(err?.message || 'Сундук еще перезаряжается');
     } finally {
       setClaimingBox(false);
     }
   };
 
   return (
-    <div className="px-4 py-3 max-w-lg mx-auto pb-safe">
-      <div className="mb-3">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <Gift className="w-5 h-5 text-amber-500" />
-          <span>Ежедневные Бонусы</span>
+    <div className="px-4 py-3 max-w-lg mx-auto pb-safe space-y-4">
+      <div>
+        <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+          ЕЖЕДНЕВНОЕ ПООЩРЕНИЕ
+        </div>
+        <h2 className="font-heading text-lg font-extrabold text-white flex items-center gap-2 mt-0.5">
+          <Gift className="w-5 h-5 text-amber-400" />
+          <span>Бонусы и Награды</span>
         </h2>
-        <p className="text-xs text-zinc-400">
-          Заходите каждый день без перерывов, чтобы увеличивать размер награды до 150 000 $MAG
+        <p className="text-xs text-zinc-400 mt-0.5">
+          Заходите в игру каждый день без пропусков и забирайте до 150 000 $MACV
         </p>
       </div>
 
-      {/* Блок 1: 7-дневный стрик наград (плоская поверхность, деления тонкими линиями) */}
-      <div className="border border-white/10 rounded-xl bg-[#10141D] p-4 mb-4">
-        <div className="flex items-center justify-between mb-3 pb-2 border-b border-white/5">
-          <div className="flex items-center gap-1.5 text-xs font-bold text-white uppercase tracking-wider">
-            <Sparkles className="w-4 h-4 text-amber-400" />
-            <span>Календарь Наград (7 Дней)</span>
-          </div>
-          <div className="text-[11px] font-mono text-amber-400 font-semibold">
+      {errorMessage && (
+        <div className="px-3.5 py-2.5 rounded-xl bg-[#0b0c10] border border-amber-500/40 text-xs text-amber-300 font-medium">
+          {errorMessage}
+        </div>
+      )}
+
+      {/* Панель 1: Серия ежедневных наград (единая плоская поверхность, деление только линиями) */}
+      <div className="bg-[#0b0c10] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06] overflow-hidden">
+        <div className="px-4 py-3 flex items-center justify-between">
+          <span className="text-xs font-extrabold uppercase tracking-wider text-white">
+            Серия входов (7 дней)
+          </span>
+          <span className="text-xs font-mono font-bold text-amber-400 tabular-nums">
             День {streakInfo?.streakDay || 1} из 7
-          </div>
+          </span>
         </div>
 
-        {/* Сетка дней 1-7 */}
-        <div className="grid grid-cols-4 gap-2 mb-4">
+        {/* Список дней на плоской поверхности с тонкими разделителями */}
+        <div className="divide-y divide-white/[0.06]">
           {streakInfo?.rewards.map((r) => {
             const currentDay = streakInfo.streakDay;
             const isPast = r.day < currentDay;
@@ -114,29 +128,43 @@ export const BonusesScreen: React.FC = () => {
             return (
               <div
                 key={r.day}
-                className={`p-2 rounded-lg text-center border transition-all ${
-                  isToday && !streakInfo.isClaimedToday
-                    ? 'bg-amber-500/15 border-amber-500 text-white shadow-[0_0_12px_rgba(245,158,11,0.25)]'
-                    : isClaimed
-                    ? 'bg-emerald-500/10 border-emerald-500/30 text-zinc-400'
-                    : 'bg-[#0B0E14] border-white/5 text-zinc-400'
-                }`}
+                className="px-4 py-2.5 flex items-center justify-between text-xs"
               >
-                <div className="text-[10px] font-bold uppercase tracking-wider">
-                  ДЕНЬ {r.day}
+                <div className="flex items-center gap-2.5">
+                  <span
+                    className={`font-mono font-extrabold uppercase tracking-wider ${
+                      isToday && !streakInfo.isClaimedToday
+                        ? 'text-amber-400'
+                        : isClaimed
+                        ? 'text-emerald-400'
+                        : 'text-zinc-400'
+                    }`}
+                  >
+                    ДЕНЬ {r.day}
+                  </span>
+                  {isToday && !streakInfo.isClaimedToday && (
+                    <span className="text-[10px] font-black uppercase tracking-wider text-white">
+                      • ДОСТУПНО СЕЙЧАС
+                    </span>
+                  )}
                 </div>
-                <div className="text-xs font-mono font-bold text-amber-400 my-0.5 tabular-nums">
-                  +{r.reward >= 1000 ? `${r.reward / 1000}k` : r.reward}
-                </div>
-                <div className="text-[10px] flex items-center justify-center">
+
+                <div className="flex items-center gap-3">
+                  <span className="font-mono font-bold text-white tabular-nums">
+                    +{r.reward.toLocaleString('ru-RU')} $MACV
+                  </span>
                   {isClaimed ? (
-                    <span className="text-emerald-400 font-bold flex items-center gap-0.5">
-                      <Check className="w-3 h-3" /> Взят
+                    <span className="font-mono text-[11px] font-bold text-emerald-400 flex items-center gap-1 min-w-[68px] justify-end">
+                      <Check className="w-3.5 h-3.5" /> ВЗЯТО
                     </span>
                   ) : isToday ? (
-                    <span className="text-amber-400 font-bold">Сегодня</span>
+                    <span className="font-mono text-[11px] font-bold text-amber-400 min-w-[68px] text-right">
+                      СЕГОДНЯ
+                    </span>
                   ) : (
-                    <span className="text-zinc-400">Скоро</span>
+                    <span className="font-mono text-[11px] text-zinc-400 min-w-[68px] text-right">
+                      ОЖИДАНИЕ
+                    </span>
                   )}
                 </div>
               </div>
@@ -144,59 +172,66 @@ export const BonusesScreen: React.FC = () => {
           })}
         </div>
 
-        {/* Кнопка забрать стрик */}
-        <button
-          onClick={handleClaimStreak}
-          disabled={loading || streakInfo?.isClaimedToday || claimingStreak}
-          className={`arcade-btn w-full min-h-[44px] rounded-xl font-mono text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 ${
-            streakInfo?.isClaimedToday
-              ? 'bg-[#181F2C] text-zinc-400 border border-white/5 cursor-not-allowed'
-              : 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500'
-          }`}
-        >
-          {streakInfo?.isClaimedToday ? (
-            <span className="flex items-center gap-1.5 text-zinc-400">
-              <Check className="w-4 h-4 text-emerald-400" /> СЕГОДНЯ НАГРАДА УЖЕ ВЗЯТА
-            </span>
-          ) : (
-            <span>ЗАБРАТЬ НАГРАДУ ДНЯ</span>
-          )}
-        </button>
+        <div className="p-3.5">
+          <button
+            onClick={handleClaimStreak}
+            disabled={loading || streakInfo?.isClaimedToday || claimingStreak}
+            className={`w-full min-h-[46px] rounded-xl font-heading text-xs font-extrabold uppercase tracking-wider flex items-center justify-center gap-2 ${
+              streakInfo?.isClaimedToday
+                ? 'arcade-btn-dark opacity-55 cursor-not-allowed text-zinc-400'
+                : 'arcade-btn-gold'
+            }`}
+          >
+            {streakInfo?.isClaimedToday ? (
+              <>
+                <Check className="w-4 h-4 text-emerald-400" />
+                <span>НАГРАДА ДНЯ ПОЛУЧЕНА</span>
+              </>
+            ) : (
+              <span>ЗАБРАТЬ НАГРАДУ ДНЯ</span>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Блок 2: Сундук Удачи (Fortune Box) */}
-      <div className="border border-white/10 rounded-xl bg-[#10141D] p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="flex items-center gap-2">
-            <div className="w-9 h-9 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400">
-              <Box className="w-5 h-5" />
+      {/* Панель 2: Сундук удачи каждые 4 часа (единая плоская поверхность) */}
+      <div className="bg-[#0b0c10] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06] overflow-hidden">
+        <div className="p-4 flex items-start gap-3">
+          <Box className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+          <div className="min-w-0">
+            <div className="text-sm font-bold text-white">
+              Сундук Удачи (каждые 4 часа)
             </div>
-            <div>
-              <div className="text-sm font-bold text-white">Сундук Удачи</div>
-              <div className="text-[11px] text-zinc-400">Случайный дроп от 1 500 до 15 000 $MAG</div>
+            <div className="text-xs text-zinc-400 mt-0.5">
+              Мгновенная случайная выплата от 1 500 до 15 000 $MACV на ваш баланс
             </div>
+            {lastBoxReward !== null && (
+              <div className="text-xs font-mono font-bold text-emerald-400 tabular-nums mt-1.5">
+                НАЧИСЛЕНО ИЗ СУНДУКА: +{lastBoxReward.toLocaleString('ru-RU')} $MACV
+              </div>
+            )}
           </div>
         </div>
 
-        <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-3 mt-3">
-          <div className="flex items-center gap-1.5 text-xs text-zinc-400">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
-            <span>Перезарядка:</span>
+        <div className="px-4 py-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-xs">
+            <Clock className="w-4 h-4 text-amber-400" />
+            <span className="text-zinc-400 font-semibold">Таймер:</span>
             <span className="font-mono font-bold text-white tabular-nums">
-              {boxTimeLeft > 0 ? formatTimer(boxTimeLeft) : 'ГОТОВ'}
+              {boxTimeLeft > 0 ? formatTimer(boxTimeLeft) : 'ДОСТУПЕН'}
             </span>
           </div>
 
           <button
             onClick={handleClaimBox}
             disabled={boxTimeLeft > 0 || claimingBox}
-            className={`arcade-btn min-w-[120px] min-h-[40px] px-4 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center ${
+            className={`min-w-[130px] min-h-[44px] px-4 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center ${
               boxTimeLeft > 0
-                ? 'bg-[#181F2C] text-zinc-400 border border-white/5 cursor-not-allowed'
-                : 'bg-gradient-to-r from-amber-500 to-amber-600 text-black hover:from-amber-400 hover:to-amber-500'
+                ? 'arcade-btn-dark opacity-50 cursor-not-allowed'
+                : 'arcade-btn-gold'
             }`}
           >
-            {claimingBox ? '...' : boxTimeLeft > 0 ? 'ЖДИТЕ' : 'ОТКРЫТЬ'}
+            {claimingBox ? '...' : boxTimeLeft > 0 ? 'ОЖИДАНИЕ' : 'ОТКРЫТЬ'}
           </button>
         </div>
       </div>

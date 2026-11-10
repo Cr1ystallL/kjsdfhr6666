@@ -8,21 +8,22 @@ export default {
     extend: {
       colors: {
         obsidian: {
-          950: '#06080B',
-          900: '#0B0E14',
-          800: '#10141D',
-          700: '#181F2C',
-          600: '#232D3F',
+          950: '#050507',
+          900: '#09090b',
+          800: '#0d0e12',
+          700: '#13151b',
+          600: '#1c1f26',
         },
-        magcoin: {
-          gold: '#F59E0B',
-          amber: '#D97706',
-          darkgold: '#B45309',
+        gold: {
+          light: '#fde68a',
+          primary: '#f59e0b',
+          dark: '#b45309',
         }
       },
       fontFamily: {
-        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'Menlo', 'monospace'],
-        sans: ['Inter', 'system-ui', '-apple-system', 'sans-serif'],
+        sans: ['Onest', 'system-ui', '-apple-system', 'sans-serif'],
+        heading: ['Unbounded', 'Onest', 'sans-serif'],
+        mono: ['JetBrains Mono', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       }
     },
   },

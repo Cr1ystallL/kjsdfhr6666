@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { UpgradeItem, UserUpgrades } from '../../types';
 import { fetchUpgrades, buyUpgrade } from '../../api';
-import { 
-  Zap, 
-  BatteryCharging, 
-  Activity, 
-  Cpu, 
-  Coins, 
-  Bot, 
-  Server, 
-  ShieldCheck, 
+import {
+  Zap,
+  BatteryCharging,
+  Activity,
+  Cpu,
+  Coins,
+  Bot,
+  Server,
+  ShieldCheck,
   Vault,
   TrendingUp,
   Check
@@ -34,6 +34,7 @@ export const UpgradesScreen: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState<'tap' | 'passive'>('tap');
   const [loading, setLoading] = useState<boolean>(true);
   const [buyingId, setBuyingId] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const loadList = async () => {
     if (!user) return;
@@ -58,14 +59,15 @@ export const UpgradesScreen: React.FC = () => {
     }
 
     setBuyingId(upgrade.id);
+    setStatusMessage(null);
     try {
       const res = await buyUpgrade(user.telegramId, upgrade.id as keyof UserUpgrades);
       triggerHaptic('success');
       updateUserDirectly(res.user);
       await loadList();
-    } catch (err) {
+    } catch (err: any) {
       triggerHaptic('error');
-      alert((err as any).message || 'Не удалось купить улучшение');
+      setStatusMessage(err?.message || 'Не удалось приобрести улучшение');
     } finally {
       setBuyingId(null);
     }
@@ -75,52 +77,56 @@ export const UpgradesScreen: React.FC = () => {
 
   return (
     <div className="px-4 py-3 max-w-lg mx-auto pb-safe">
-      {/* Заголовок раздела */}
       <div className="mb-3">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-amber-500" />
+        <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+          МОДЕРНИЗАЦИЯ ОБОРУДОВАНИЯ
+        </div>
+        <h2 className="font-heading text-lg font-extrabold text-white flex items-center gap-2 mt-0.5">
+          <TrendingUp className="w-5 h-5 text-amber-400" />
           <span>Прокачка и Улучшения</span>
         </h2>
-        <p className="text-xs text-zinc-400">
-          Увеличивайте доход за каждое нажатие и развивайте автономный пассивный майнинг
+        <p className="text-xs text-zinc-400 mt-0.5">
+          Повышайте мощность нажатия и развивайте автономную добычу в час
         </p>
       </div>
 
-      {/* Переключатель категорий: строгий матовый стиль без радуг */}
-      <div className="grid grid-cols-2 gap-2 mb-4 p-1 bg-[#10141D] rounded-xl border border-white/5">
+      {/* Тактильные кнопки переключения разделов */}
+      <div className="grid grid-cols-2 gap-2.5 mb-3.5">
         <button
           onClick={() => {
             triggerHaptic('light');
             setActiveCategory('tap');
           }}
-          className={`min-h-[40px] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors ${
-            activeCategory === 'tap'
-              ? 'bg-amber-500 text-black shadow'
-              : 'text-zinc-400 hover:text-white'
+          className={`min-h-[44px] rounded-xl text-xs font-extrabold uppercase tracking-wider ${
+            activeCategory === 'tap' ? 'arcade-btn-gold' : 'arcade-btn-dark text-zinc-300'
           }`}
         >
-          Кликер и Энергия
+          Сила и Энергия
         </button>
         <button
           onClick={() => {
             triggerHaptic('light');
             setActiveCategory('passive');
           }}
-          className={`min-h-[40px] text-xs font-bold uppercase tracking-wider rounded-lg transition-colors ${
-            activeCategory === 'passive'
-              ? 'bg-amber-500 text-black shadow'
-              : 'text-zinc-400 hover:text-white'
+          className={`min-h-[44px] rounded-xl text-xs font-extrabold uppercase tracking-wider ${
+            activeCategory === 'passive' ? 'arcade-btn-gold' : 'arcade-btn-dark text-zinc-300'
           }`}
         >
-          Пассивный Майнинг
+          Доход в Час
         </button>
       </div>
 
-      {/* Список улучшений (единая плоская поверхность с тонкими линиями) */}
-      <div className="border border-white/10 rounded-xl bg-[#10141D] overflow-hidden divide-y divide-white/5">
+      {statusMessage && (
+        <div className="mb-3 px-3.5 py-2.5 rounded-xl bg-[#0b0c10] border border-amber-500/40 text-xs text-amber-300 font-medium">
+          {statusMessage}
+        </div>
+      )}
+
+      {/* Единая плоская панель улучшений с разделением только тонкими линиями */}
+      <div className="bg-[#0b0c10] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-xs text-zinc-400 animate-pulse">
-            Загрузка улучшений...
+          <div className="p-8 text-center text-xs font-mono uppercase tracking-wider text-zinc-400">
+            Загрузка оборудования...
           </div>
         ) : filteredUpgrades.length === 0 ? (
           <div className="p-8 text-center text-xs text-zinc-400">
@@ -134,52 +140,50 @@ export const UpgradesScreen: React.FC = () => {
 
             return (
               <div key={upgrade.id} className="p-3.5 flex items-center justify-between gap-3">
-                {/* Иконка и описание */}
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center text-amber-400 flex-shrink-0">
-                    <Icon className="w-5 h-5" />
-                  </div>
+                <div className="flex items-start gap-3 min-w-0">
+                  <Icon className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   <div className="min-w-0">
-                    <div className="flex items-center gap-2">
+                    <div className="flex items-baseline gap-2">
                       <span className="text-sm font-bold text-white truncate">
                         {upgrade.title}
                       </span>
-                      <span className="text-[10px] font-mono px-1.5 py-0.5 rounded bg-white/5 text-amber-400 border border-white/5 font-semibold">
+                      <span className="text-[10px] font-mono font-bold uppercase tracking-wider text-amber-400 shrink-0">
                         УР. {upgrade.currentLevel}
                       </span>
                     </div>
-                    <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                    <div className="text-xs text-zinc-400 truncate mt-0.5">
                       {upgrade.description}
                     </div>
-                    <div className="text-[11px] font-mono text-emerald-400 mt-0.5 font-semibold">
-                      +{upgrade.category === 'passive' ? `${upgrade.nextBonus.toLocaleString('ru-RU')} / ч` : `${upgrade.nextBonus} к показателю`}
+                    <div className="text-xs font-mono font-bold text-emerald-400 tabular-nums mt-1">
+                      +{upgrade.category === 'passive'
+                        ? `${upgrade.nextBonus.toLocaleString('ru-RU')} $MACV / ч`
+                        : `${upgrade.nextBonus} к показателю`}
                     </div>
                   </div>
                 </div>
 
-                {/* Кнопка покупки с тактильным эффектом */}
                 <button
                   onClick={() => handleBuy(upgrade)}
                   disabled={upgrade.isMaxLevel || !canAfford || isBusy}
-                  className={`arcade-btn min-w-[96px] min-h-[42px] px-3 py-1.5 rounded-lg flex flex-col items-center justify-center font-mono text-xs font-bold transition-all ${
+                  className={`min-w-[104px] min-h-[44px] px-3 py-1.5 rounded-xl flex flex-col items-center justify-center font-mono shrink-0 ${
                     upgrade.isMaxLevel
-                      ? 'bg-zinc-800/40 text-zinc-400 border border-white/5 cursor-default'
+                      ? 'arcade-btn-dark opacity-50 cursor-default'
                       : canAfford
-                      ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-black border-amber-400/40 hover:from-amber-400 hover:to-amber-500'
-                      : 'bg-[#181F2C] text-zinc-400 border border-white/5 cursor-not-allowed'
+                      ? 'arcade-btn-gold'
+                      : 'arcade-btn-dark opacity-55 cursor-not-allowed'
                   }`}
                 >
                   {upgrade.isMaxLevel ? (
-                    <span className="flex items-center gap-1 text-[11px]">
-                      <Check className="w-3.5 h-3.5" /> МАКС
+                    <span className="flex items-center gap-1 text-[11px] font-bold uppercase text-emerald-400">
+                      <Check className="w-3.5 h-3.5" /> ПРЕДЕЛ
                     </span>
                   ) : (
                     <>
-                      <span className="text-[10px] uppercase font-bold tracking-wider leading-none">
-                        {isBusy ? '...' : 'КУПИТЬ'}
+                      <span className="text-[10px] font-extrabold uppercase tracking-wider leading-none">
+                        {isBusy ? '...' : 'УЛУЧШИТЬ'}
                       </span>
-                      <span className="text-[11px] tabular-nums mt-0.5 leading-none">
-                        {upgrade.nextCost.toLocaleString('ru-RU')} $
+                      <span className="text-xs font-bold tabular-nums mt-1 leading-none">
+                        {upgrade.nextCost.toLocaleString('ru-RU')}
                       </span>
                     </>
                   )}

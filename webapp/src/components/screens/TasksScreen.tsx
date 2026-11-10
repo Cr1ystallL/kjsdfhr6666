@@ -2,16 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { useGame } from '../../context/GameContext';
 import { TaskItem } from '../../types';
 import { fetchTasks, claimTask } from '../../api';
-import { 
-  CheckSquare, 
-  Send, 
-  Users, 
-  UserPlus, 
-  Award, 
-  Flame, 
-  Shield, 
-  ExternalLink, 
-  CheckCircle2 
+import {
+  CheckSquare,
+  Send,
+  Users,
+  UserPlus,
+  Award,
+  Flame,
+  Shield,
+  ExternalLink,
+  CheckCircle2
 } from 'lucide-react';
 
 const TASK_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>> = {
@@ -20,7 +20,7 @@ const TASK_ICON_MAP: Record<string, React.ComponentType<{ className?: string }>>
   UserPlus,
   Award,
   Flame,
-  Shield
+  Shield,
 };
 
 export const TasksScreen: React.FC = () => {
@@ -29,6 +29,7 @@ export const TasksScreen: React.FC = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [openedTasks, setOpenedTasks] = useState<Record<string, boolean>>({});
   const [claimingId, setClaimingId] = useState<string | null>(null);
+  const [statusMessage, setStatusMessage] = useState<string | null>(null);
 
   const loadList = async () => {
     if (!user) return;
@@ -48,8 +49,8 @@ export const TasksScreen: React.FC = () => {
 
   const handleAction = async (task: TaskItem) => {
     if (task.isCompleted) return;
+    setStatusMessage(null);
 
-    // Если есть внешняя ссылка (соцсеть) и пользователь еще не нажимал "Перейти"
     if (task.actionUrl && !openedTasks[task.id]) {
       triggerHaptic('light');
       window.open(task.actionUrl, '_blank');
@@ -57,7 +58,6 @@ export const TasksScreen: React.FC = () => {
       return;
     }
 
-    // Забираем награду
     if (!user) return;
     setClaimingId(task.id);
     try {
@@ -67,7 +67,7 @@ export const TasksScreen: React.FC = () => {
       await loadList();
     } catch (err: any) {
       triggerHaptic('error');
-      alert(err.message || 'Задание еще не выполнено');
+      setStatusMessage(err?.message || 'Условия задания еще не выполнены');
     } finally {
       setClaimingId(null);
     }
@@ -75,20 +75,30 @@ export const TasksScreen: React.FC = () => {
 
   return (
     <div className="px-4 py-3 max-w-lg mx-auto pb-safe">
-      <div className="mb-3">
-        <h2 className="text-lg font-bold text-white flex items-center gap-2">
-          <CheckSquare className="w-5 h-5 text-amber-500" />
-          <span>Задания и Награды</span>
+      <div className="mb-3.5">
+        <div className="text-[10px] font-black uppercase tracking-wider text-amber-400">
+          ПОРУЧЕНИЯ И НАГРАДЫ
+        </div>
+        <h2 className="font-heading text-lg font-extrabold text-white flex items-center gap-2 mt-0.5">
+          <CheckSquare className="w-5 h-5 text-amber-400" />
+          <span>Задания Сообщества</span>
         </h2>
-        <p className="text-xs text-zinc-400">
-          Выполняйте квесты сообщества, приглашайте друзей и получайте мгновенные награды в $MAG
+        <p className="text-xs text-zinc-400 mt-0.5">
+          Выполняйте поручения, приглашайте участников и получайте мгновенные выплаты в $MACV
         </p>
       </div>
 
-      <div className="border border-white/10 rounded-xl bg-[#10141D] overflow-hidden divide-y divide-white/5">
+      {statusMessage && (
+        <div className="mb-3 px-3.5 py-2.5 rounded-xl bg-[#0b0c10] border border-amber-500/40 text-xs text-amber-300 font-medium">
+          {statusMessage}
+        </div>
+      )}
+
+      {/* Единая плоская панель без вложенных контейнеров */}
+      <div className="bg-[#0b0c10] border border-white/[0.08] rounded-2xl divide-y divide-white/[0.06] overflow-hidden">
         {loading ? (
-          <div className="p-8 text-center text-xs text-zinc-400 animate-pulse">
-            Загрузка списка заданий...
+          <div className="p-8 text-center text-xs font-mono uppercase tracking-wider text-zinc-400">
+            Загрузка поручений...
           </div>
         ) : tasks.length === 0 ? (
           <div className="p-8 text-center text-xs text-zinc-400">
@@ -102,47 +112,44 @@ export const TasksScreen: React.FC = () => {
 
             return (
               <div key={task.id} className="p-3.5 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 border ${
-                    task.isCompleted
-                      ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400'
-                      : 'bg-amber-500/10 border-amber-500/20 text-amber-400'
-                  }`}>
-                    {task.isCompleted ? <CheckCircle2 className="w-5 h-5" /> : <Icon className="w-5 h-5" />}
-                  </div>
+                <div className="flex items-start gap-3 min-w-0">
+                  {task.isCompleted ? (
+                    <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
+                  ) : (
+                    <Icon className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+                  )}
                   <div className="min-w-0">
                     <div className="text-sm font-bold text-white truncate">
                       {task.title}
                     </div>
-                    <div className="text-[11px] text-zinc-400 truncate mt-0.5">
+                    <div className="text-xs text-zinc-400 truncate mt-0.5">
                       {task.description}
                     </div>
-                    <div className="text-[11px] font-mono text-amber-400 mt-0.5 font-bold tabular-nums">
-                      +{task.reward.toLocaleString('ru-RU')} $MAG
+                    <div className="text-xs font-mono font-bold text-amber-400 tabular-nums mt-1">
+                      +{task.reward.toLocaleString('ru-RU')} $MACV
                     </div>
                   </div>
                 </div>
 
-                {/* Кнопка действия */}
-                <div>
+                <div className="shrink-0">
                   {task.isCompleted ? (
-                    <div className="min-w-[84px] text-center text-xs font-semibold text-emerald-400 py-1 flex items-center justify-center gap-1">
+                    <span className="min-w-[96px] min-h-[44px] px-3 flex items-center justify-center gap-1.5 text-xs font-mono font-bold uppercase text-emerald-400">
                       <CheckCircle2 className="w-4 h-4" />
-                      <span>Готово</span>
-                    </div>
+                      <span>Получено</span>
+                    </span>
                   ) : task.actionUrl && !isOpened ? (
                     <button
                       onClick={() => handleAction(task)}
-                      className="arcade-btn min-w-[90px] min-h-[38px] px-3 py-1.5 rounded-lg bg-[#181F2C] border border-white/10 text-white font-semibold text-xs flex items-center justify-center gap-1.5 hover:bg-zinc-800"
+                      className="arcade-btn-dark min-w-[100px] min-h-[44px] px-3.5 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5"
                     >
-                      <span>Открыть</span>
-                      <ExternalLink className="w-3.5 h-3.5 text-zinc-400" />
+                      <span>Перейти</span>
+                      <ExternalLink className="w-3.5 h-3.5 text-amber-400" />
                     </button>
                   ) : (
                     <button
                       onClick={() => handleAction(task)}
                       disabled={isBusy}
-                      className="arcade-btn min-w-[90px] min-h-[38px] px-3 py-1.5 rounded-lg bg-gradient-to-r from-amber-500 to-amber-600 text-black font-extrabold text-xs uppercase tracking-wider flex items-center justify-center hover:from-amber-400 hover:to-amber-500"
+                      className="arcade-btn-gold min-w-[100px] min-h-[44px] px-3.5 rounded-xl text-xs font-extrabold uppercase tracking-wider flex items-center justify-center"
                     >
                       {isBusy ? '...' : 'ПРОВЕРИТЬ'}
                     </button>

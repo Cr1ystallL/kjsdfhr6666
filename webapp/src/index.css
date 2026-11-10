@@ -9,8 +9,9 @@
 body {
   margin: 0;
   padding: 0;
-  background-color: #0B0E14;
-  color: #F4F4F5;
+  background-color: #050507;
+  color: #f4f4f5;
+  font-family: 'Onest', system-ui, -apple-system, sans-serif;
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
   touch-action: manipulation;
@@ -18,53 +19,94 @@ body {
   user-select: none;
 }
 
-/* Физическая тактильность кнопок (Arcade depth standard) */
-.arcade-btn {
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.15), 0 2px 4px rgba(0, 0, 0, 0.4);
-  border-bottom: 2px solid rgba(0, 0, 0, 0.4);
+/* Физическая тактильность кнопок — Золотой основной привод */
+.arcade-btn-gold {
+  background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 55%, #d97706 100%);
+  color: #050507;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.45),
+    0 4px 14px rgba(245, 158, 11, 0.18);
+  border-bottom: 2px solid #92400e;
   transition: transform 75ms ease, filter 75ms ease;
 }
 
-.arcade-btn:active {
-  transform: translateY(1.5px) scale(0.98);
+.arcade-btn-gold:active:not(:disabled) {
+  transform: translateY(2px) scale(0.985);
+  filter: brightness(0.93);
+}
+
+/* Физическая тактильность кнопок — Темный графитовый привод */
+.arcade-btn-dark {
+  background: linear-gradient(180deg, #171920 0%, #111318 100%);
+  color: #f4f4f5;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.65),
+    0 3px 10px rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.8);
+  transition: transform 75ms ease, border-color 75ms ease;
+}
+
+.arcade-btn-dark:active:not(:disabled) {
+  transform: translateY(2px) scale(0.985);
+}
+
+/* Совместимость со старым классом */
+.arcade-btn {
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.18),
+    inset 0 -2px 0 rgba(0, 0, 0, 0.5),
+    0 4px 12px rgba(0, 0, 0, 0.45);
+  border-bottom: 2px solid rgba(0, 0, 0, 0.55);
+  transition: transform 75ms ease, filter 75ms ease;
+}
+
+.arcade-btn:active:not(:disabled) {
+  transform: translateY(2px) scale(0.98);
   filter: brightness(0.92);
 }
 
-/* 3D тактильная монета */
-.coin-wrapper {
-  perspective: 1000px;
+/* 3D сцена монеты */
+.coin-stage {
+  perspective: 1200px;
+  -webkit-perspective: 1200px;
 }
 
-.coin-face {
-  box-shadow: 
-    0 12px 35px -8px rgba(245, 158, 11, 0.25),
-    inset 0 2px 4px rgba(255, 255, 255, 0.3),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.6);
-  transition: transform 100ms cubic-bezier(0.175, 0.885, 0.32, 1.275);
+.coin-disc {
+  transform-style: preserve-3d;
+  -webkit-transform-style: preserve-3d;
+  transition: transform 90ms cubic-bezier(0.16, 0.84, 0.28, 1);
+  will-change: transform;
 }
 
-.coin-face:active {
-  transform: scale(0.96);
+.coin-disc:active {
+  transform: scale(0.965);
 }
 
-/* Всплывающие числа при тапе */
+/* Всплывающие числа при нажатии */
 @keyframes floatUpFade {
   0% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0) scale(0.95);
+  }
+  25% {
+    opacity: 1;
+    transform: translateY(-24px) scale(1.12);
   }
   100% {
     opacity: 0;
-    transform: translateY(-90px) scale(1.3);
+    transform: translateY(-95px) scale(1.05);
   }
 }
 
 .animate-tap-number {
-  animation: floatUpFade 0.75s ease-out forwards;
+  animation: floatUpFade 0.72s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   pointer-events: none;
 }
 
-/* Safe area padding для Telegram */
+/* Отступ под нижнюю консоль Telegram */
 .pb-safe {
-  padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 68px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 14px) + 78px);
 }

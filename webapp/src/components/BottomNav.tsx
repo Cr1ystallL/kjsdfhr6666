@@ -1,56 +1,101 @@
 import React from 'react';
 import { useGame } from '../context/GameContext';
 import { ScreenTab } from '../types';
-import { 
-  Pickaxe, 
-  TrendingUp, 
-  CheckSquare, 
-  Gift, 
-  User, 
-  HelpCircle 
+import {
+  TrendingUp,
+  CheckSquare,
+  Gift,
+  User,
+  BookOpen
 } from 'lucide-react';
+import { BrandMark } from './BrandMark';
 
 export const BottomNav: React.FC = () => {
   const { activeTab, setActiveTab, triggerHaptic } = useGame();
-
-  const navItems: Array<{ tab: ScreenTab; label: string; icon: React.ComponentType<{ className?: string }> }> = [
-    { tab: 'tap', label: 'Майнинг', icon: Pickaxe },
-    { tab: 'upgrades', label: 'Прокачка', icon: TrendingUp },
-    { tab: 'tasks', label: 'Задания', icon: CheckSquare },
-    { tab: 'bonuses', label: 'Бонусы', icon: Gift },
-    { tab: 'profile', label: 'Профиль', icon: User },
-    { tab: 'about', label: 'О токене', icon: HelpCircle },
-  ];
 
   const handleTabSelect = (tab: ScreenTab) => {
     triggerHaptic('light');
     setActiveTab(tab);
   };
 
+  const navItems: Array<{
+    tab: ScreenTab;
+    label: string;
+    renderIcon: (isActive: boolean) => React.ReactNode;
+  }> = [
+    {
+      tab: 'tap',
+      label: 'Добыча',
+      renderIcon: (isActive) => (
+        <BrandMark
+          variant={isActive ? 'gradient' : 'white'}
+          size={22}
+          className={isActive ? 'scale-110 transition-transform' : 'opacity-65'}
+        />
+      ),
+    },
+    {
+      tab: 'upgrades',
+      label: 'Прокачка',
+      renderIcon: (isActive) => (
+        <TrendingUp className={`w-5 h-5 ${isActive ? 'stroke-[2.5] text-amber-400' : 'stroke-[1.8]'}`} />
+      ),
+    },
+    {
+      tab: 'tasks',
+      label: 'Задания',
+      renderIcon: (isActive) => (
+        <CheckSquare className={`w-5 h-5 ${isActive ? 'stroke-[2.5] text-amber-400' : 'stroke-[1.8]'}`} />
+      ),
+    },
+    {
+      tab: 'bonuses',
+      label: 'Бонусы',
+      renderIcon: (isActive) => (
+        <Gift className={`w-5 h-5 ${isActive ? 'stroke-[2.5] text-amber-400' : 'stroke-[1.8]'}`} />
+      ),
+    },
+    {
+      tab: 'profile',
+      label: 'Профиль',
+      renderIcon: (isActive) => (
+        <User className={`w-5 h-5 ${isActive ? 'stroke-[2.5] text-amber-400' : 'stroke-[1.8]'}`} />
+      ),
+    },
+    {
+      tab: 'about',
+      label: 'О монете',
+      renderIcon: (isActive) => (
+        <BookOpen className={`w-5 h-5 ${isActive ? 'stroke-[2.5] text-amber-400' : 'stroke-[1.8]'}`} />
+      ),
+    },
+  ];
+
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#0B0E14]/95 backdrop-blur-lg border-t border-white/10 px-2 py-1.5 pb-[max(0.375rem,env(safe-area-inset-bottom))]">
-      <div className="flex items-center justify-around max-w-md mx-auto">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#08090c]/95 backdrop-blur-md border-t border-white/[0.08] px-1.5 pt-1 pb-[max(0.4rem,env(safe-area-inset-bottom))]">
+      <div className="grid grid-cols-6 max-w-md mx-auto">
         {navItems.map((item) => {
-          const Icon = item.icon;
           const isActive = activeTab === item.tab;
 
           return (
             <button
               key={item.tab}
               onClick={() => handleTabSelect(item.tab)}
-              className={`flex flex-col items-center justify-center min-w-[50px] min-h-[46px] rounded-lg transition-all duration-75 relative ${
-                isActive 
-                  ? 'text-amber-400' 
-                  : 'text-zinc-500 hover:text-zinc-300'
+              className={`relative flex flex-col items-center justify-center min-h-[48px] py-1 transition-transform duration-75 active:scale-95 ${
+                isActive ? 'text-white' : 'text-zinc-400 hover:text-zinc-200'
               }`}
             >
-              {/* Верхняя тонкая полоска активного таба */}
               {isActive && (
-                <span className="absolute top-0 w-6 h-0.5 bg-amber-400 rounded-full" />
+                <span className="absolute top-0 w-7 h-[2px] bg-amber-400 rounded-full" />
               )}
-              
-              <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110 stroke-[2.5]' : 'stroke-[1.75]'}`} />
-              <span className={`text-[10px] mt-1 font-semibold tracking-tight ${isActive ? 'font-bold' : ''}`}>
+              <div className="h-5 flex items-center justify-center">
+                {item.renderIcon(isActive)}
+              </div>
+              <span
+                className={`text-[10px] mt-1 tracking-tight leading-none ${
+                  isActive ? 'font-bold text-amber-400' : 'font-medium text-zinc-400'
+                }`}
+              >
                 {item.label}
               </span>
             </button>

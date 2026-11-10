@@ -7,10 +7,10 @@ const DB_FILE = path.join(DATA_DIR, 'database.json');
 
 // Конфигурация карточек прокачки
 export const UPGRADE_DEFINITIONS: UpgradeCardDef[] = [
-  // Базовые кликер-бусты
+  // Базовые улучшения нажатия и энергии
   {
     id: 'multitap',
-    title: 'Мульти-Тап',
+    title: 'Сила Нажатия',
     description: '+1 к добыче монет за каждое касание экрана',
     category: 'tap',
     baseCost: 200,
@@ -35,7 +35,7 @@ export const UPGRADE_DEFINITIONS: UpgradeCardDef[] = [
   {
     id: 'rechargeSpeed',
     title: 'Скорость Зарядки',
-    description: '+1 к регенерации энергии в секунду',
+    description: '+1 к восстановлению энергии в секунду',
     category: 'tap',
     baseCost: 500,
     costMultiplier: 2.3,
@@ -48,8 +48,8 @@ export const UPGRADE_DEFINITIONS: UpgradeCardDef[] = [
   // Пассивный доход в час (карточки инфраструктуры)
   {
     id: 'cryptoNode',
-    title: 'Крипто-Узел',
-    description: 'Локальная нода валидации транзакций MacvCoin',
+    title: 'Узел Валидации',
+    description: 'Локальный узел обработки транзакций MacvCoin',
     category: 'passive',
     baseCost: 1000,
     costMultiplier: 1.6,
@@ -72,8 +72,8 @@ export const UPGRADE_DEFINITIONS: UpgradeCardDef[] = [
   },
   {
     id: 'aiTrader',
-    title: 'Нейро-Трейдер',
-    description: 'Алгоритмический бот арбитража на DEX-биржах',
+    title: 'Торговый Алгоритм',
+    description: 'Автоматический алгоритм торговли на биржах',
     category: 'passive',
     baseCost: 10000,
     costMultiplier: 1.7,
@@ -85,7 +85,7 @@ export const UPGRADE_DEFINITIONS: UpgradeCardDef[] = [
   {
     id: 'dataCenter',
     title: 'Серверный Кластер',
-    description: 'Вычислительные мощности облачного дата-центра',
+    description: 'Вычислительные мощности облачного центра',
     category: 'passive',
     baseCost: 35000,
     costMultiplier: 1.75,
@@ -96,7 +96,7 @@ export const UPGRADE_DEFINITIONS: UpgradeCardDef[] = [
   },
   {
     id: 'validatorNode',
-    title: 'Мастернода Сети',
+    title: 'Главный Узел Сети',
     description: 'Участие в консенсусе блокчейна первого уровня',
     category: 'passive',
     baseCost: 100000,
@@ -108,8 +108,8 @@ export const UPGRADE_DEFINITIONS: UpgradeCardDef[] = [
   },
   {
     id: 'tonStaking',
-    title: 'TON Стейкинг-Хранилище',
-    description: 'Заблокированные активы в смарт-контракте экосистемы',
+    title: 'Хранилище Резерва TON',
+    description: 'Заблокированные активы в смарт-контракте сети',
     category: 'passive',
     baseCost: 300000,
     costMultiplier: 1.85,
@@ -125,7 +125,7 @@ export const TASK_DEFINITIONS: TaskDef[] = [
   {
     id: 'tg_channel',
     title: 'Подписка на канал MacvCoin',
-    description: 'Следи за анонсами, инсайдами и датой листинга $MACV',
+    description: 'Следите за новостями и датой выхода $MACV на биржу',
     reward: 10000,
     category: 'social',
     actionUrl: 'https://t.me/macvcoin_channel',
@@ -133,8 +133,8 @@ export const TASK_DEFINITIONS: TaskDef[] = [
   },
   {
     id: 'tg_chat',
-    title: 'Вступить в комьюнити-чат',
-    description: 'Обсуждай стратегии прокачки с другими майнерами',
+    title: 'Вступить в чат сообщества',
+    description: 'Обсуждайте стратегию развития с другими участниками',
     reward: 10000,
     category: 'social',
     actionUrl: 'https://t.me/macvcoin_chat',
@@ -143,7 +143,7 @@ export const TASK_DEFINITIONS: TaskDef[] = [
   {
     id: 'invite_3_friends',
     title: 'Пригласить 3 друзей',
-    description: 'Поделись ссылкой с друзьями и получи бонус в $MACV',
+    description: 'Поделитесь личной ссылкой и получите выплату в $MACV',
     reward: 50000,
     category: 'referral',
     requiredCount: 3,
@@ -152,7 +152,7 @@ export const TASK_DEFINITIONS: TaskDef[] = [
   {
     id: 'invite_10_friends',
     title: 'Пригласить 10 друзей',
-    description: 'Создай свою команду майнеров MacvCoin',
+    description: 'Сформируйте собственную команду добычи MacvCoin',
     reward: 200000,
     category: 'referral',
     requiredCount: 10,
@@ -160,8 +160,8 @@ export const TASK_DEFINITIONS: TaskDef[] = [
   },
   {
     id: 'first_10k_taps',
-    title: 'Натапать 10,000 монет',
-    description: 'Начальная активность в кликере',
+    title: 'Добыть 10 000 монет',
+    description: 'Начальный рубеж общей добычи монет на балансе',
     reward: 15000,
     category: 'game',
     iconName: 'Flame'
@@ -169,7 +169,7 @@ export const TASK_DEFINITIONS: TaskDef[] = [
   {
     id: 'upgrade_to_silver',
     title: 'Достичь лиги Серебро',
-    description: 'Набери более 25,000 очков прогресса',
+    description: 'Наберите более 25 000 монет общей добычи',
     reward: 25000,
     category: 'game',
     iconName: 'Shield'
