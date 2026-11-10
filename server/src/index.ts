@@ -2,6 +2,7 @@ import express, { Request, Response } from 'express';
 import cors from 'cors';
 import dotenv from 'dotenv';
 import { exec } from 'child_process';
+import fs from 'fs';
 import path from 'path';
 import {
   db,
@@ -13,6 +14,7 @@ import {
 dotenv.config();
 
 const app = express();
+const apiRouter = express.Router();
 const PORT = process.env.PORT || 4100;
 const DEPLOY_SECRET = process.env.DEPLOY_SECRET || 'macvcoin_secret_deploy_token_123';
 
@@ -20,12 +22,12 @@ app.use(cors({ origin: '*' }));
 app.use(express.json());
 
 // 1. Health check
-app.get('/api/health', (_req: Request, res: Response) => {
+apiRouter.get('/health', (_req: Request, res: Response) => {
   res.json({ status: 'ok', time: new Date().toISOString(), service: 'MacvCoin API' });
 });
 
 // 2. Синхронизация профиля и начисление оффлайн-дохода
-app.post('/api/user/sync', (req: Request, res: Response) => {
+apiRouter.post('/user/sync', (req: Request, res: Response) => {
   try {
     const { telegramId, username, firstName, referrerId } = req.body;
     if (!telegramId) {
@@ -50,7 +52,7 @@ app.post('/api/user/sync', (req: Request, res: Response) => {
 });
 
 // 3. Синхронизация кликов/тапов
-app.post('/api/user/tap', (req: Request, res: Response) => {
+apiRouter.post('/user/tap', (req: Request, res: Response) => {
   try {
     const { telegramId, taps } = req.body;
     if (!telegramId || typeof taps !== 'number') {
@@ -69,7 +71,7 @@ app.post('/api/user/tap', (req: Request, res: Response) => {
 });
 
 // 4. Список улучшений с динамической ценой
-app.get('/api/upgrades/list', (req: Request, res: Response) => {
+apiRouter.get('/upgrades/list', (req: Request, res: Response) => {
   try {
     const telegramId = Number(req.query.telegramId);
     let userUpgrades: any = {};
@@ -101,7 +103,7 @@ app.get('/api/upgrades/list', (req: Request, res: Response) => {
 });
 
 // 5. Покупка улучшения
-app.post('/api/upgrades/buy', (req: Request, res: Response) => {
+apiRouter.post('/upgrades/buy', (req: Request, res: Response) => {
   try {
     const { telegramId, upgradeId } = req.body;
     if (!telegramId || !upgradeId) {
@@ -116,7 +118,7 @@ app.post('/api/upgrades/buy', (req: Request, res: Response) => {
 });
 
 // 6. Список заданий
-app.get('/api/tasks/list', (req: Request, res: Response) => {
+apiRouter.get('/tasks/list', (req: Request, res: Response) => {
   try {
     const telegramId = Number(req.query.telegramId);
     let completedTasks: string[] = [];
@@ -151,7 +153,7 @@ app.get('/api/tasks/list', (req: Request, res: Response) => {
 });
 
 // 7. Получение награды за задание
-app.post('/api/tasks/claim', (req: Request, res: Response) => {
+apiRouter.post('/tasks/claim', (req: Request, res: Response) => {
   try {
     const { telegramId, taskId } = req.body;
     if (!telegramId || !taskId) {
@@ -166,7 +168,7 @@ app.post('/api/tasks/claim', (req: Request, res: Response) => {
 });
 
 // 8. Состояние ежедневных бонусов
-app.get('/api/bonuses/streak', (req: Request, res: Response) => {
+apiRouter.get('/bonuses/streak', (req: Request, res: Response) => {
   try {
     const telegramId = Number(req.query.telegramId);
     if (!telegramId) return res.status(400).json({ error: 'telegramId обязателен' });
@@ -193,7 +195,7 @@ app.get('/api/bonuses/streak', (req: Request, res: Response) => {
 });
 
 // 9. Забрать ежедневный стрик
-app.post('/api/bonuses/claim-streak', (req: Request, res: Response) => {
+apiRouter.post('/bonuses/claim-streak', (req: Request, res: Response) => {
   try {
     const { telegramId } = req.body;
     if (!telegramId) return res.status(400).json({ error: 'telegramId обязателен' });
@@ -206,7 +208,7 @@ app.post('/api/bonuses/claim-streak', (req: Request, res: Response) => {
 });
 
 // 10. Открыть сундук удачи
-app.post('/api/bonuses/claim-box', (req: Request, res: Response) => {
+apiRouter.post('/bonuses/claim-box', (req: Request, res: Response) => {
   try {
     const { telegramId } = req.body;
     if (!telegramId) return res.status(400).json({ error: 'telegramId обязателен' });
@@ -219,7 +221,7 @@ app.post('/api/bonuses/claim-box', (req: Request, res: Response) => {
 });
 
 // 11. Регистрация реферала (вызывается ботом)
-app.post('/api/referrals/register', (req: Request, res: Response) => {
+apiRouter.post('/referrals/register', (req: Request, res: Response) => {
   try {
     const { telegramId, referrerId, username, firstName } = req.body;
     if (!telegramId || !referrerId) {
@@ -234,7 +236,7 @@ app.post('/api/referrals/register', (req: Request, res: Response) => {
 });
 
 // 12. Список рефералов пользователя
-app.get('/api/referrals/list', (req: Request, res: Response) => {
+apiRouter.get('/referrals/list', (req: Request, res: Response) => {
   try {
     const telegramId = Number(req.query.telegramId);
     if (!telegramId) return res.status(400).json({ error: 'telegramId обязателен' });
@@ -247,7 +249,7 @@ app.get('/api/referrals/list', (req: Request, res: Response) => {
 });
 
 // 13. Авто-деплой Webhook
-app.post('/api/webhook/deploy', (req: Request, res: Response) => {
+apiRouter.post('/webhook/deploy', (req: Request, res: Response) => {
   const token = req.headers['x-deploy-token'] || req.query.token;
   if (token !== DEPLOY_SECRET) {
     return res.status(403).json({ error: 'Неверный токен деплоя' });
@@ -267,6 +269,30 @@ app.post('/api/webhook/deploy', (req: Request, res: Response) => {
   res.json({ success: true, message: 'Деплой запущен в фоновом режиме!' });
 });
 
+// Подключение API по всем префиксам (/api, /coin/api, /coin-api)
+app.use('/api', apiRouter);
+app.use('/coin/api', apiRouter);
+app.use('/coin-api', apiRouter);
+
+// Раздача собранного фронтенда MacvCoin (webapp/dist) без участия интерфейса казино
+const candidateDist1 = path.resolve(process.cwd(), '../webapp/dist');
+const candidateDist2 = path.resolve(process.cwd(), 'webapp/dist');
+const webappDistPath = fs.existsSync(candidateDist1) ? candidateDist1 : candidateDist2;
+
+app.use('/coin', express.static(webappDistPath, { index: false }));
+app.use('/', express.static(webappDistPath, { index: false }));
+
+const serveSpaIndex = (_req: Request, res: Response) => {
+  res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+  res.setHeader('Pragma', 'no-cache');
+  res.setHeader('Expires', '0');
+  res.sendFile(path.join(webappDistPath, 'index.html'));
+};
+
+app.get('/coin', serveSpaIndex);
+app.get('/coin/*', serveSpaIndex);
+app.get('*', serveSpaIndex);
+
 app.listen(PORT, () => {
-  console.log(`⚡ [MacvCoin Server] Запущен на порту ${PORT}`);
+  console.log(`⚡ [MacvCoin Server] Запущен на порту ${PORT} (dist: ${webappDistPath})`);
 });

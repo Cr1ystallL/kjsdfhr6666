@@ -41,8 +41,8 @@ if os.path.exists(env_file):
     except Exception:
         pass
 
-BOT_TOKEN = (os.getenv("BOT_TOKEN") or "").strip()
-WEBAPP_URL = (os.getenv("WEBAPP_URL") or "").strip().rstrip("/")
+BOT_TOKEN = (os.getenv("BOT_TOKEN") or "9099205497:AAF1kDahwPcl40wbBSPOw1W91cfet4226EI").strip()
+WEBAPP_URL = (os.getenv("WEBAPP_URL") or "https://macvbet.nl/coin").strip().rstrip("/")
 BACKEND_URL = (os.getenv("BACKEND_URL") or "").strip() or "http://127.0.0.1:4100"
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(name)s - %(levelname)s - %(message)s")
@@ -79,7 +79,7 @@ async def register_referral_on_backend(telegram_id: int, referrer_id: int, usern
 
 def get_main_inline_keyboard(user_id: int) -> InlineKeyboardMarkup:
     """Только две инлайн-кнопки: Mini App и Информация"""
-    webapp_url = f"{WEBAPP_URL}?userId={user_id}"
+    webapp_url = f"{WEBAPP_URL}/?userId={user_id}&v=2"
     return InlineKeyboardMarkup(
         inline_keyboard=[
             [
@@ -158,7 +158,7 @@ async def handle_start(message: types.Message):
 @dp.callback_query(F.data == "about_token")
 async def handle_about_token(callback: types.CallbackQuery):
     user_id = callback.from_user.id
-    webapp_url = f"{WEBAPP_URL}?userId={user_id}"
+    webapp_url = f"{WEBAPP_URL}/?userId={user_id}&v=2"
 
     token_text = (
         "💎 <b>О проекте MacvCoin ($MACV):</b>\n\n"
@@ -221,7 +221,7 @@ async def set_menu_button():
         await bot.set_chat_menu_button(
             menu_button=MenuButtonWebApp(
                 text="Играть",
-                web_app=WebAppInfo(url=WEBAPP_URL)
+                web_app=WebAppInfo(url=f"{WEBAPP_URL}/?v=2")
             )
         )
     except Exception as e:
